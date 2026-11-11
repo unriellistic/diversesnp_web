@@ -21,9 +21,12 @@
   "packageManager": "pnpm@12.18.0",
   "type": "module",
   "dependencies": {
+    "@fastify/type-provider-typebox": "^6.3.0",
     "@fastify/vite": "^10.0.0",
     "d3": "^7.9.2",
-    "fastify": "^5.12.8"
+    "fastify": "^5.12.8",
+    "fastify-sqlite": "^2.0.0",
+    "typebox": "^1.4.6"
   },
   "devDependencies": {
     "@types/d3": "^7.4.3",
