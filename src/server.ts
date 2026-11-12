@@ -2,8 +2,10 @@ import { resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import Fastify from 'fastify';
 import FastifyVite from '@fastify/vite';
+// TypeBox for schema validation of request data
 import { Type } from '@fastify/type-provider-typebox'
 import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
+
 
 const fastify = Fastify().withTypeProvider<TypeBoxTypeProvider>();
 const sqlite = new DatabaseSync('diversesnp.db', { readOnly: true });
@@ -13,6 +15,7 @@ await fastify.register(FastifyVite, {
   dev: process.argv.includes('--dev'),
   spa: true,
 });
+
 
 fastify.get('/', (req, reply) => {
   return reply.html()
@@ -34,11 +37,7 @@ fastify.post('/api/data', {
   var sample_ids: string[] = req.body.sample_ids;
   const dims: number[] = req.body.dims;
 
-  const result: Record<string, {
-    pop_id: unknown;
-    // super_pop_id: unknown;
-    values: Record<string, unknown>;
-  }> = {};
+  const result = [];
 
   const sampleToPop = sqlite.prepare(
     'SELECT pop_id FROM sample2pop WHERE sample_id = ?'
@@ -73,22 +72,24 @@ fastify.post('/api/data', {
     //   | undefined;
     // if (!popDescription) continue;
 
-    const values: Record<string, unknown> = {};
+    const values: number[] = [];
     for (const dim of dims) {
       const row = pcaValue.get(sample_id, dim) as
         | { value: unknown }
         | undefined;
-      if (row) values[String(dim)] = row.value;
+      if (row) values.push(row.value as number);
     }
 
-    result[sample_id] = {
-      pop_id: samplePop.pop_id,
-      // super_pop_id: popDescription.super_pop_id,
-      values,
-    };
+    result.push([sample_id, samplePop.pop_id, ...values]);
   }
 
-  return reply.type('application/json').send(result);
+  
+
+  const csv = result
+    .map(row => row.join(','))
+    .join('\n');
+
+  return reply.type('text/csv').send(csv);
 });
 
 await fastify.vite.ready();
