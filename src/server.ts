@@ -42,9 +42,6 @@ fastify.post('/api/data', {
   const sampleToPop = sqlite.prepare(
     'SELECT pop_id FROM sample2pop WHERE sample_id = ?'
   );
-  const popToSuperPop = sqlite.prepare(
-    'SELECT super_pop_id FROM pop_desc WHERE pop_id = ?'
-  );
   const pcaValue = sqlite.prepare(
     'SELECT value FROM pca WHERE sample_id = ? AND dim = ?'
   );
@@ -60,6 +57,15 @@ fastify.post('/api/data', {
     ).all() as { sample_id: string }[];
     sample_ids = samples.map(sample => sample.sample_id);
   }
+
+  // get pop to super pop mapping
+  const popToSuperPopMap = new Map(
+    (sqlite.prepare(
+      'SELECT pop_id, super_pop_id FROM pop_desc'
+    ).all() as { pop_id: string; super_pop_id: string }[])
+      .map(row => [row.pop_id, row.super_pop_id])
+  );
+  
 
   for (const sample_id of sample_ids) {
     const samplePop = sampleToPop.get(sample_id) as
@@ -80,7 +86,9 @@ fastify.post('/api/data', {
       if (row) values.push(row.value as number);
     }
 
-    result.push([sample_id, samplePop.pop_id, ...values]);
+    const super_pop_id = popToSuperPopMap.get(samplePop.pop_id as string);
+
+    result.push([sample_id, samplePop.pop_id, super_pop_id, ...values]);
   }
 
   
