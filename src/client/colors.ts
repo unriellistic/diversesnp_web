@@ -4,7 +4,7 @@ const clamp = (value: number, min: number, max: number): number => {
 
 
 const luma = (rgb: readonly [number, number, number]): number => {
-  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+  return 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2];
 }
 
 
