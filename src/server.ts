@@ -53,7 +53,7 @@ fastify.post('/api/data', {
   // if sample_ids contains "*", get all sample IDs from the database
   if (sample_ids.includes("*")) {
     const samples = sqlite.prepare(
-      'SELECT sample_id FROM pca'
+      'SELECT sample_id FROM sample'
     ).all() as { sample_id: string }[];
     sample_ids = samples.map(sample => sample.sample_id);
   }
@@ -65,7 +65,7 @@ fastify.post('/api/data', {
     ).all() as { pop_id: string; super_pop_id: string }[])
       .map(row => [row.pop_id, row.super_pop_id])
   );
-  
+
 
   for (const sample_id of sample_ids) {
     const samplePop = sampleToPop.get(sample_id) as
