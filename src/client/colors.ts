@@ -42,4 +42,16 @@ const hueToRGB = (hue: number, Y: number = 0.5): string => {
   return `rgb(${final_rgb.map(value => Math.round(value * 255)).join(', ')})`;
 }
 
-export { hueToRGB };
+
+// function to find the angle of a point relative to the overall centroid
+// we will use this to assign hues to each group in a smooth manner
+const centroidAngle = (centroid: [number, number], point: [number, number], baseAngle: number = 0.5): number => {
+  const dx = point[0] - centroid[0];
+  const dy = point[1] - centroid[1];
+  const normalizedAngle = Math.atan2(dy, dx) / (2 * Math.PI); // angle normalized to a range of 1
+  const adjustedAngle = (normalizedAngle + baseAngle) % 1; // adjust angle to be in the range [0, 1]
+  return (adjustedAngle < 0 ? adjustedAngle + 1 : adjustedAngle); // ensure angle is non-negative
+}
+
+
+export { hueToRGB, centroidAngle };
