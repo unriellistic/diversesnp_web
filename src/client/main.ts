@@ -3,13 +3,13 @@ import * as d3 from "d3";
 import { hueToRGB } from "./colors";
 
 // define populations and hues
-// const super_pop_hues = {
-//   EAS: 0.1,
-//   SAS: 0.3,
-//   EUR: 0.5,
-//   AMR: 0.7,
-//   AFR: 0.9,
-// };
+const super_pop_hues: Record<string, number> = {
+  EAS: 0.1,
+  SAS: 0.3,
+  EUR: 0.5,
+  AMR: 0.7,
+  AFR: 0.9,
+};
 
 
 // chart setup
@@ -42,14 +42,14 @@ const centroid = [
 ];
 
 // find centroids of each super pop
-const super_pop_centroids = d3.rollups(
-  parsed_data,
-  v => [
-    d3.mean(v, d => Number(d[3])), // mean of dim 0
-    d3.mean(v, d => Number(d[4])), // mean of dim 1
-  ],
-  d => d[2] // group by super pop
-);
+// const super_pop_centroids = d3.rollups(
+//   parsed_data,
+//   v => [
+//     d3.mean(v, d => Number(d[3])), // mean of dim 0
+//     d3.mean(v, d => Number(d[4])), // mean of dim 1
+//   ],
+//   d => d[2] // group by super pop
+// );
 
 // find centroids of each pop
 const pop_centroids = d3.rollups(
@@ -71,12 +71,12 @@ const centroidAngle = (centroid: [number, number], point: [number, number], base
   return (adjustedAngle < 0 ? adjustedAngle + 1 : adjustedAngle); // ensure angle is non-negative
 }
 
-const super_pop_hues = Object.fromEntries(
-  super_pop_centroids.map(([super_pop, super_pop_centroid]) => [
-    super_pop,
-    centroidAngle(centroid as [number, number], super_pop_centroid as [number, number]),
-  ])
-);
+// const super_pop_hues = Object.fromEntries(
+//   super_pop_centroids.map(([super_pop, super_pop_centroid]) => [
+//     super_pop,
+//     centroidAngle(centroid as [number, number], super_pop_centroid as [number, number]),
+//   ])
+// );
 
 const pop_hues = Object.fromEntries(
   pop_centroids.map(([pop, pop_centroid]) => [
@@ -143,8 +143,33 @@ chart.append("g")
      .attr("class", d => "dot " + d[1] + " " + d[2]) // add pop and super pop as classes
      .attr("cx", d => x_axis(+d[3]))
      .attr("cy", d => y_axis(+d[4]))
-     .attr("fill", d => hueToRGB(pop_hues[d[1] as keyof typeof pop_hues]))
-    //  .attr("fill", d => hueToRGB(super_pop_hues[d[2] as keyof typeof super_pop_hues]))
      .attr("r", 2.5)
-     .on("mouseover", highlightPop)
      .on("mouseleave", resetHighlight);
+
+
+const setColoring = (colorBy: "super_pop" | "pop") => {
+  if (colorBy === "super_pop") {
+    chart.selectAll(".dot")
+         .data(parsed_data)
+         .on("mouseover", highlightSuperPop)
+         .transition()
+         .duration(500)
+         .attr("fill", d => hueToRGB(super_pop_hues[d[2]]));
+  } else if (colorBy === "pop") {
+    chart.selectAll(".dot")
+         .data(parsed_data)
+         .on("mouseover", highlightPop)
+         .transition()
+         .duration(500)
+         .attr("fill", d => hueToRGB(pop_hues[d[1]]));
+  }
+}
+
+const colorTypeSelect = document.getElementById("color_type") as HTMLSelectElement;
+colorTypeSelect.addEventListener("change", (event) => {
+  const selectedColorType = (event.target as HTMLSelectElement).value;
+  setColoring(selectedColorType as "super_pop" | "pop");
+});
+
+// set initial coloring
+setColoring("super_pop");
