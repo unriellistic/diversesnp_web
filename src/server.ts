@@ -21,6 +21,13 @@ fastify.get('/', (req, reply) => {
   return reply.html()
 });
 
+fastify.get('/api/pop_desc', (req, reply) => {
+  const popToSuperPopMap = sqlite.prepare(
+      'SELECT pop_id, super_pop_id FROM pop_desc'
+    ).all() as { pop_id: string; super_pop_id: string }[]
+  return reply.type("application/json").send(popToSuperPopMap);
+});
+
 fastify.post('/api/data', {
   schema: {
     body: Type.Object({

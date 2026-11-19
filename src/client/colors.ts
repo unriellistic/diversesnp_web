@@ -54,4 +54,43 @@ const centroidAngle = (centroid: [number, number], point: [number, number], base
 }
 
 
-export { hueToRGB, centroidAngle };
+// enforce a minimum hue separation within a group of hues
+const separateHues = (hueRecord: Record<string, number>, minSeparation: number = 0.01): Record<string, number> => {
+  const hues = Object.values(hueRecord);
+  const keys = Object.keys(hueRecord);
+
+  // sort hues and keys together based on hue values
+  const sortedIndices = hues.map((_, index) => index).sort((a, b) => hues[a] - hues[b]);
+  const sortedHues = sortedIndices.map(index => hues[index]);
+  const sortedKeys = sortedIndices.map(index => keys[index]);
+
+  // adjust hues to ensure minimum separation
+  for (let i = 1; i < sortedHues.length; i++) {
+    if (sortedHues[i] - sortedHues[i - 1] < minSeparation) {
+      sortedHues[i] = sortedHues[i - 1] + minSeparation;
+    }
+  }
+
+  // wrap around if the last hue exceeds 1
+  if (sortedHues[sortedHues.length - 1] > 1) {
+    const overflow = sortedHues[sortedHues.length - 1] - 1;
+    for (let i = sortedHues.length - 1; i >= 0; i--) {
+      sortedHues[i] -= overflow;
+      if (i > 0 && sortedHues[i] - sortedHues[i - 1] < minSeparation) {
+        sortedHues[i - 1] = sortedHues[i] - minSeparation;
+      }
+    }
+  }
+
+  // create a new record with adjusted hues
+  const adjustedHueRecord: Record<string, number> = {};
+  for (let i = 0; i < sortedKeys.length; i++) {
+    adjustedHueRecord[sortedKeys[i]] = sortedHues[i];
+  }
+
+  return adjustedHueRecord;
+}
+
+
+
+export { hueToRGB, centroidAngle, separateHues };
