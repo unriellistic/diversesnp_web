@@ -6,14 +6,38 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
     <title>DiverseSNP</title>
   </head>
-  <body>
+  <body style="max-width: none;">
     <h1>DiverseSNP</h1>
 
-    <label for="color_type">Color by:</label>
-    <select name="color_type" id="color_type" defaultValue="super_pop">
-      <option value="super_pop">Continent</option>
-      <option value="pop">Population</option>
-    </select>
+    <div style="display: flex; gap: 1rem;">
+      <div style="display: flex; flex-direction: column;">
+        <label for="color_type">Color by:</label>
+        <select name="color_type" id="color_type">
+          <option value="super_pop" selected>Continent</option>
+          <option value="pop">Population</option>
+        </select>
+      </div>
+
+      <div style="display: flex; flex-direction: column;">
+        <label for="x_axis">X-axis:</label>
+        <select name="x_axis" id="x_axis">
+          <option value=0 selected>PC1</option>
+          <option value=1>PC2</option>
+          <option value=2>PC3</option>
+          <option value=3>PC4</option>
+        </select>
+      </div>
+      <div style="display: flex; flex-direction: column;">
+        <label for="y_axis">Y-axis:</label>
+        <select name="y_axis" id="y_axis">
+          <option value=0>PC1</option>
+          <option value=1 selected>PC2</option>
+          <option value=2>PC3</option>
+          <option value=3>PC4</option>
+        </select>
+      </div>
+    </div>
+
 
     <div id="chart"></div>
     <script type="module" src="/main.ts"></script>

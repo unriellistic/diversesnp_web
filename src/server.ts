@@ -23,8 +23,8 @@ fastify.get('/', (req, reply) => {
 
 fastify.get('/api/pop_desc', (req, reply) => {
   const popToSuperPopMap = sqlite.prepare(
-      'SELECT pop_id, super_pop_id FROM pop_desc'
-    ).all() as { pop_id: string; super_pop_id: string }[]
+      'SELECT pop_id, super_pop_id, pop_name FROM pop_desc'
+    ).all() as { pop_id: string; super_pop_id: string, pop_name: string }[]
   return reply.type("application/json").send(popToSuperPopMap);
 });
 
@@ -35,12 +35,7 @@ fastify.post('/api/data', {
       dims: Type.Array(Type.Number()),
     }),
   }
-}, async (req, reply) => {
-  // check if the req body is json
-  if (req.headers['content-type'] !== 'application/json') {
-    return reply.status(415).send({ error: 'Unsupported media type' });
-  }
-  
+}, async (req, reply) => {  
   var sample_ids: string[] = req.body.sample_ids;
   const dims: number[] = req.body.dims;
 
@@ -79,11 +74,6 @@ fastify.post('/api/data', {
       | { pop_id: unknown }
       | undefined;
     if (!samplePop) continue;
-
-    // const popDescription = popToSuperPop.get(samplePop.pop_id) as
-    //   | { super_pop_id: unknown }
-    //   | undefined;
-    // if (!popDescription) continue;
 
     const values: number[] = [];
     for (const dim of dims) {

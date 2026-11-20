@@ -55,7 +55,7 @@ const centroidAngle = (centroid: [number, number], point: [number, number], base
 
 
 // enforce a minimum hue separation within a group of hues
-const separateHues = (hueRecord: Record<string, number>, minSeparation: number = 0.01): Record<string, number> => {
+const separateHues = (hueRecord: Record<string, number>, minSeparation: number = 0.015): Record<string, number> => {
   const hues = Object.values(hueRecord);
   const keys = Object.keys(hueRecord);
 
@@ -72,14 +72,19 @@ const separateHues = (hueRecord: Record<string, number>, minSeparation: number =
   }
 
   // wrap around if the last hue exceeds 1
-  if (sortedHues[sortedHues.length - 1] > 1) {
-    const overflow = sortedHues[sortedHues.length - 1] - 1;
-    for (let i = sortedHues.length - 1; i >= 0; i--) {
-      sortedHues[i] -= overflow;
-      if (i > 0 && sortedHues[i] - sortedHues[i - 1] < minSeparation) {
-        sortedHues[i - 1] = sortedHues[i] - minSeparation;
-      }
-    }
+  // if (sortedHues[sortedHues.length - 1] > 1) {
+  //   const overflow = sortedHues[sortedHues.length - 1] - 1;
+  //   for (let i = sortedHues.length - 1; i >= 0; i--) {
+  //     sortedHues[i] -= overflow;
+  //     if (i > 0 && sortedHues[i] - sortedHues[i - 1] < minSeparation) {
+  //       sortedHues[i - 1] = sortedHues[i] - minSeparation;
+  //     }
+  //   }
+  // }
+
+  // modulo everything to [0, 1]
+  for (let i = 0; i < sortedHues.length; i++) {
+    sortedHues[i] = ((sortedHues[i] % 1) + 1) % 1;
   }
 
   // create a new record with adjusted hues
